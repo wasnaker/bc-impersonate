@@ -75,6 +75,19 @@ export class ImpersonateController {
     );
   }
 
+  @Post('renew')
+  @HttpCode(HttpStatus.OK)
+  renew(
+    @Request() request: AuthenticatedRequest,
+    @Body() dto: StopImpersonationDto,
+  ) {
+    return this.service.renew(
+      request.user.id,
+      request.user.sessionId,
+      dto.impersonationId,
+    );
+  }
+
   @Get('current')
   current(@Request() request: AuthenticatedRequest) {
     const payload = request.user;
