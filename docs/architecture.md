@@ -32,7 +32,7 @@ The actor's original access and refresh credentials remain in the browser's prot
 1. Actor submits target user ID and optional reason.
 2. API validates actor authorization and actor session, resolves the target and its current roles, creates an audit record, then issues a short-lived access token.
 3. Every request using that token must be rejected if its impersonation record is inactive, expired, or revoked. This requires a host JWT validation hook; a standalone module route guard alone cannot protect unrelated host endpoints.
-4. Refresh-token exchange while impersonating is rejected. The browser retains the actor's original credentials and uses them to resume the original session after stop.
+4. Ordinary refresh-token exchange while impersonating is rejected. The two lifecycle endpoints (renew and stop) accept the preserved actor refresh token only after validating its session hash and ownership; they do not rotate that token. The browser retains the actor's original credentials and uses them to resume the original session after stop.
 5. Stop marks the record ended/revoked and returns the actor's original session context. The browser restores the original actor credentials.
 
 ## Audit trail
