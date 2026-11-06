@@ -28,6 +28,8 @@ export interface ImpersonateModuleOptions {
   }>;
   /** Verify that actorId/sessionId is still a valid host session. */
   validateActorSession(actorId: number | string, sessionId: number | string): Promise<boolean>;
+  /** Resolve a signed refresh-token session only when its hash still matches the host session. */
+  resolveActorSession(sessionId: number | string, hash: string): Promise<{ actorId: number | string } | null>;
   /** Delegate permission checks to the central Brocoders authorization core. */
   authorize(actorId: number | string, permission: string): Promise<boolean>;
   /** Sign using the host JWT configuration; claims must include subject, roles, actor and impersonation ID. */
