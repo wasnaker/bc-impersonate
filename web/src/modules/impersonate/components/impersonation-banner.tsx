@@ -5,6 +5,8 @@ import { API_URL } from '@/services/api/config';
 import { AuthTokensContext } from '@/services/auth/auth-context';
 import { getTokensInfo } from '@/services/auth/auth-tokens-info';
 import { Button } from '@/components/ui/button';
+import useAuth from '@/services/auth/use-auth';
+import { useTranslation } from '@/services/i18n/client';
 
 interface JwtClaims { impersonationId?: string; actorId?: number; id?: number; }
 interface ActorTokens { token: string; refreshToken: string; tokenExpires: number; }
@@ -21,6 +23,8 @@ function readClaims(token: string | null | undefined): JwtClaims | null {
 export function ImpersonationBanner() {
   const fetchWithAuth = useFetch();
   const { setTokensInfo } = useContext(AuthTokensContext);
+  const { user } = useAuth();
+  const { t } = useTranslation('module-impersonate');
   const [active, setActive] = useState(false);
   const [targetId, setTargetId] = useState<number | null>(null);
   const [error, setError] = useState('');
@@ -79,7 +83,7 @@ export function ImpersonationBanner() {
         setTargetId(data.targetUserId);
         const actor = readActorContext();
         if (!actor) {
-          setError('Original administrator session is unavailable in this tab');
+          setError(t('banner.unavailable'));
           return;
         }
         const delay = Math.max(1000, new Date(data.expiresAt).getTime() - Date.now() - 60_000);
@@ -104,12 +108,12 @@ export function ImpersonationBanner() {
               });
             }
           } catch (cause) {
-            if (!cancelled) setError(cause instanceof Error ? cause.message : 'Unable to renew impersonation');
+            if (!cancelled) setError(cause instanceof Error ? cause.message : t('banner.renewError'));
           }
         }, delay);
       })
       .catch((cause) => {
-        if (!cancelled) setError(cause instanceof Error ? cause.message : 'Unable to verify impersonation status');
+        if (!cancelled) setError(cause instanceof Error ? cause.message : t('banner.verifyError'));
       });
 
     return () => {
@@ -143,12 +147,13 @@ export function ImpersonationBanner() {
   }
 
   if (!active) return error ? <div role="alert" className="border-b bg-destructive/10 px-4 py-2 text-sm text-destructive">{error}</div> : null;
+  const targetName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.email || `#${targetId}`;
   return (
     <div role="status" className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-400 bg-amber-50 px-4 py-2 text-sm text-amber-950 dark:bg-amber-950 dark:text-amber-100">
-      <span><strong>Impersonation active.</strong> You are viewing the application as user #{targetId}.</span>
+      <span><strong>{t('banner.title')}.</strong> {t('banner.description', { user: targetName })}</span>
       <div className="flex items-center gap-3">
         {error && <span role="alert">{error}</span>}
-        <Button size="sm" variant="outline" onClick={stop}>Stop impersonating</Button>
+        <Button size="sm" variant="outline" onClick={stop}>{t('banner.stop')}</Button>
       </div>
     </div>
   );
