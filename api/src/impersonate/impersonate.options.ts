@@ -22,7 +22,7 @@ export interface ImpersonateModuleOptions {
   /** Resolve a target through the host user service, including its current roles/status. */
   findUserById(userId: number | string): Promise<ImpersonationUser | null>;
   /** Search users through the host user service; never query the host user table directly. */
-  searchUsers(input: { query: string; page: number; limit: number }): Promise<{
+  searchUsers(input: { query: string; page: number; limit: number; excludeUserId: number | string }): Promise<{
     data: ImpersonationUser[];
     total: number;
   }>;
