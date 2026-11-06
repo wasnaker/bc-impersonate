@@ -14,11 +14,11 @@ The backend package exposes:
 
 The host registry discovers the package, entity, and migration. The host owns the PostgreSQL DataSource and executes migrations through its explicit migration workflow.
 
-The host adapter must resolve active users and their current roles through UsersService, search through the host user service, validate the actor's live SessionService record, check impersonate:start and read:impersonate against the central authorization core, and issue a short-lived access JWT using the host JWT secret/configuration. The signed token identifies the target as id and carries target roles plus actorId, actorSessionId, and impersonationId claims.
+The host adapter must resolve active users and their current roles through UsersService, search through the host user service, validate the actor's live SessionService record, resolve a signed refresh token only when its hash matches the live session, check impersonate:start and read:impersonate against the central authorization core, and issue a short-lived access JWT using the host JWT secret/configuration. The signed token identifies the target as id and carries target roles plus actorId, actorSessionId, and impersonationId claims.
 
 ## Mandatory host auth integration
 
-The host JWT strategy must call ImpersonateService.assertActiveToken() for every request carrying an impersonation claim. The refresh strategy must call assertActorSessionCanRefresh() so the administrator's preserved refresh token cannot silently switch the browser back to the admin identity while an impersonation record is active. Both checks fail closed.
+The host JWT strategy must call ImpersonateService.assertActiveToken() for every request carrying an impersonation claim. AuthService must call assertActorSessionCanRefresh() before the ordinary refresh flow so the preserved refresh token cannot silently switch the browser back to the admin identity while an impersonation record is active. The module's stop/renew routes use the refresh token only after validating its session hash and actor ownership.
 
 The host auth provider must preserve the actor's original token pair while using the temporary subject access token. The web package exports ImpersonationBanner; the host must mount it in the authenticated global shell, not only on the module page.
 
