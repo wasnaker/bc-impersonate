@@ -28,7 +28,8 @@
     "stop": "Hentikan impersonasi",
     "unavailable": "Sesi administrator asli tidak tersedia di tab ini",
     "verifyError": "Tidak dapat memverifikasi status impersonasi",
-    "renewError": "Tidak dapat memperbarui sesi impersonasi"
+    "renewError": "Tidak dapat memperbarui sesi impersonasi",
+    "stopError": "Tidak dapat menghentikan impersonasi. Silakan coba lagi."
   },
   "securityNote": "Seluruh tindakan menggunakan hak akses pengguna tujuan. Administrator tetap tercatat sebagai pelaku pada audit log."
 }
