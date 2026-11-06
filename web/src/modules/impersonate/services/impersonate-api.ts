@@ -6,8 +6,8 @@ export interface ImpersonateUser { id: number; email: string | null; firstName: 
 export interface ImpersonationStartResponse { impersonationId: string; accessToken: string; expiresAt: string; actorUserId: number; subject: ImpersonateUser; }
 export function useImpersonateApi() {
   const fetch = useFetch();
-  const searchUsers = useCallback(async (query: string) => {
-    const url = new URL(`${API_URL}/v1/impersonate/users`); url.searchParams.set('q', query); url.searchParams.set('page', '1'); url.searchParams.set('limit', '30');
+  const searchUsers = useCallback(async (query: string, page = 1) => {
+    const url = new URL(`${API_URL}/v1/impersonate/users`); url.searchParams.set('q', query); url.searchParams.set('page', String(page)); url.searchParams.set('limit', '30');
     const response = await fetch(url, { method: 'GET' }); if (!response.ok) throw new Error('Unable to search users');
     return response.json() as Promise<{ data: ImpersonateUser[]; total: number }>;
   }, [fetch]);
