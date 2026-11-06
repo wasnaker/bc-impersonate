@@ -145,6 +145,9 @@ export class ImpersonateService {
   }
 
   async stop(actorId: number, actorSessionId: number, impersonationId: string) {
+    if (!(await this.adapter.validateActorSession(actorId, actorSessionId))) {
+      throw new UnauthorizedException('The administrator session is no longer active');
+    }
     const record = await this.sessions.findOne({ where: { id: impersonationId } });
     if (!record || record.actorUserId !== actorId) throw new NotFoundException();
     if (record.actorSessionId !== actorSessionId) throw new ForbiddenException();
@@ -202,7 +205,7 @@ export class ImpersonateService {
     actorId: number;
     subjectId: number;
     actorSessionId: number;
-  }): Promise<void> {
+  }): Promise<Array<number | string>> {
     const record = await this.sessions.findOne({
       where: { id: input.impersonationId, status: 'active' },
     });
@@ -218,6 +221,14 @@ export class ImpersonateService {
     if (!(await this.adapter.validateActorSession(input.actorId, input.actorSessionId))) {
       throw new UnauthorizedException('The administrator session has been revoked');
     }
+    if (!(await this.adapter.authorize(input.actorId, START_PERMISSION))) {
+      throw new UnauthorizedException('The administrator is no longer authorized to impersonate');
+    }
+    const subject = await this.adapter.findUserById(input.subjectId);
+    if (!subject || !subject.active) {
+      throw new UnauthorizedException('The impersonated account is no longer active');
+    }
+    return subject.roles.map((role) => role.id);
   }
 
   private toSafeUser(user: {
