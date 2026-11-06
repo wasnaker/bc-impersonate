@@ -5,11 +5,16 @@ import { ImpersonateController } from './impersonate.controller';
 import { ImpersonateService } from './impersonate.service';
 import { IMPERSONATE_MODULE_OPTIONS, ImpersonateModuleAsyncOptions } from './impersonate.options';
 
+export const IMPERSONATE_SERVICE = Symbol.for('@wasnaker/module-impersonate/service');
+
 @Module({
   imports: [TypeOrmModule.forFeature([ImpersonationSessionEntity])],
   controllers: [ImpersonateController],
-  providers: [ImpersonateService],
-  exports: [ImpersonateService],
+  providers: [
+    ImpersonateService,
+    { provide: IMPERSONATE_SERVICE, useExisting: ImpersonateService },
+  ],
+  exports: [ImpersonateService, IMPERSONATE_SERVICE],
 })
 export class ImpersonateModule {
   static registerAsync(options: ImpersonateModuleAsyncOptions): DynamicModule {
