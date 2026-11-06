@@ -46,7 +46,7 @@ export function ImpersonationBanner() {
     const restoreActor = async () => {
       const actor = readActorContext();
       if (!actor) return false;
-      let response: Response | undefined;
+      let response: Response;
       try {
         response = await globalThis.fetch(`${API_URL}/v1/impersonate/stop`, {
           method: 'POST',
@@ -54,11 +54,16 @@ export function ImpersonationBanner() {
           body: JSON.stringify({ impersonationId: actor.impersonationId }),
         });
       } catch {
-        // Restore locally on network failure; the short-lived subject token will expire.
+        setError(t('banner.stopError'));
+        return false;
+      }
+      if (!response.ok && response.status !== 404 && response.status !== 401) {
+        setError(t('banner.stopError'));
+        return false;
       }
       sessionStorage.removeItem('bc-impersonate:actor-tokens');
       sessionStorage.removeItem('bc-impersonate:active-id');
-      setTokensInfo(response?.status === 401 ? null : actor.tokens);
+      setTokensInfo(response.status === 401 ? null : actor.tokens);
       setActive(false);
       return true;
     };
@@ -74,7 +79,7 @@ export function ImpersonationBanner() {
         if (response.status === 401) {
           if (await restoreActor()) return null;
         }
-        if (!response.ok) throw new Error('Unable to verify impersonation status');
+        if (!response.ok) throw new Error(t('banner.verifyError'));
         return response.json();
       })
       .then((data) => {
@@ -120,14 +125,14 @@ export function ImpersonationBanner() {
       cancelled = true;
       if (renewalTimer) clearTimeout(renewalTimer);
     };
-  }, [fetchWithAuth, claims?.impersonationId, claims?.actorId, setTokensInfo]);
+  }, [fetchWithAuth, claims?.impersonationId, claims?.actorId, setTokensInfo, t]);
 
   async function stop() {
     setError('');
     try {
       const raw = sessionStorage.getItem('bc-impersonate:actor-tokens');
       const impersonationId = sessionStorage.getItem('bc-impersonate:active-id') ?? claims?.impersonationId;
-      if (!raw || !impersonationId) throw new Error('Original administrator session is not available in this tab');
+      if (!raw || !impersonationId) throw new Error(t('banner.unavailable'));
       const original = JSON.parse(raw) as ActorTokens;
       const response = await globalThis.fetch(`${API_URL}/v1/impersonate/stop`, {
         method: 'POST',
@@ -135,7 +140,7 @@ export function ImpersonationBanner() {
         body: JSON.stringify({ impersonationId }),
       });
       if (!response.ok && response.status !== 404 && response.status !== 401) {
-        throw new Error('Unable to stop impersonation');
+        throw new Error(t('banner.stopError'));
       }
       sessionStorage.removeItem('bc-impersonate:actor-tokens');
       sessionStorage.removeItem('bc-impersonate:active-id');
