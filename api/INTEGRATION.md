@@ -15,13 +15,13 @@ The host registry discovers the module, entities, and migration. The host owns t
 
 ## Register the module
 
-Use the host's registerAsync module definition and inject adapters from the host user, session, and authorization services. The adapter must resolve active users and their current roles through the host user service; search users through the host user service; validate the actor's live session; check impersonate:start and read:impersonate against the central authorization core; and issue a short-lived access JWT using the host JWT secret/configuration, with subject ID and target role IDs plus signed actorId, actorSessionId, and impersonationId claims.
+Use the host's registerAsync module definition and inject adapters from the host user, session, and authorization services. The adapter must resolve active users and their current roles through the host user service; search users through the host user service; validate the actor's live session and resolve a refresh session only when its stored hash matches the signed refresh-token hash; check impersonate:start and read:impersonate against the central authorization core; and issue a short-lived access JWT using the host JWT secret/configuration, with subject ID and target role IDs plus signed actorId, actorSessionId, and impersonationId claims.
 
 Do not use a separate JWT secret or query host user/role tables directly from the module.
 
 ## Mandatory host auth integration before enabling
 
-The existing host JWT strategy must become asynchronous for impersonation claims and call the exported ImpersonateService.assertActiveToken() on every authenticated request. The host must also reject refresh-token exchange for impersonation access tokens. Without these changes, revoking an impersonation could leave a still-valid token usable against unrelated host endpoints.
+The existing host JWT strategy must become asynchronous for impersonation claims and call the exported ImpersonateService.assertActiveToken() on every authenticated request. The host AuthService must reject ordinary refresh-token exchange while the actor session has an active impersonation record. The module's dedicated renew/stop endpoints use the actor refresh token for lifecycle operations without rotating it. Without these changes, revoking an impersonation could leave a still-valid token usable against unrelated host endpoints.
 
 The host auth provider must preserve the actor's original token pair while using the temporary subject access token. The web package exports an ImpersonationBanner that the host must mount in its authenticated global shell, not only on the module page.
 
