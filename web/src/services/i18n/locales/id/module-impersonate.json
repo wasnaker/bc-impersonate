@@ -11,7 +11,10 @@
     "target": "Pengguna tujuan",
     "reason": "Alasan (opsional)",
     "reasonPlaceholder": "Tujuan dukungan atau pengujian",
-    "noResults": "Pengguna tidak ditemukan."
+    "noResults": "Pengguna tidak ditemukan.",
+    "page": "Halaman {{page}} dari {{pages}} ({{total}} pengguna)",
+    "previous": "Sebelumnya",
+    "next": "Berikutnya"
   },
   "actions": {
     "search": "Cari",
