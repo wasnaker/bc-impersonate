@@ -19,7 +19,7 @@ import {
 
 const START_PERMISSION = 'impersonate:start';
 const READ_PERMISSION = 'read:impersonate';
-const DEFAULT_TOKEN_LIFETIME_SECONDS = 600;
+const DEFAULT_TOKEN_LIFETIME_SECONDS = 1800;
 
 @Injectable()
 export class ImpersonateService {
@@ -90,7 +90,7 @@ export class ImpersonateService {
     if (!target.roles?.length) throw new BadRequestException('Target user has no assigned roles');
 
     const lifetime = Math.min(
-      900,
+      3600,
       Math.max(60, this.adapter.tokenLifetimeSeconds ?? DEFAULT_TOKEN_LIFETIME_SECONDS),
     );
     const id = randomUUID();
@@ -152,13 +152,55 @@ export class ImpersonateService {
     if (!record || record.actorUserId !== actorId) throw new NotFoundException();
     if (record.actorSessionId !== actorSessionId) throw new ForbiddenException();
     if (record.status !== 'active') return { stopped: true, alreadyStopped: true };
+    const expired = record.expiresAt.getTime() <= Date.now();
     await this.sessions.update({ id: record.id, status: 'active' }, {
-      status: 'stopped',
+      status: expired ? 'expired' : 'stopped',
       endedAt: new Date(),
       endedByUserId: actorId,
-      terminationReason: 'actor_requested',
+      terminationReason: expired ? 'expired' : 'actor_requested',
     });
     return { stopped: true, impersonationId: record.id };
+  }
+
+  async renew(actorId: number, actorSessionId: number, impersonationId: string) {
+    if (!(await this.adapter.authorize(actorId, START_PERMISSION))) {
+      throw new ForbiddenException();
+    }
+    if (!(await this.adapter.validateActorSession(actorId, actorSessionId))) {
+      throw new UnauthorizedException('The administrator session is no longer active');
+    }
+    const record = await this.sessions.findOne({
+      where: { id: impersonationId, actorUserId: actorId, actorSessionId, status: 'active' },
+    });
+    if (!record || record.expiresAt.getTime() <= Date.now()) {
+      if (record) {
+        await this.sessions.update({ id: record.id, status: 'active' }, {
+          status: 'expired',
+          endedAt: new Date(),
+          terminationReason: 'expired',
+        });
+      }
+      throw new UnauthorizedException('Impersonation session has expired');
+    }
+    const target = await this.adapter.findUserById(record.targetUserId);
+    if (!target || !target.active || !target.roles.length) {
+      throw new UnauthorizedException('The impersonated account is no longer available');
+    }
+    const lifetime = Math.min(
+      3600,
+      Math.max(60, this.adapter.tokenLifetimeSeconds ?? DEFAULT_TOKEN_LIFETIME_SECONDS),
+    );
+    const expiresAt = new Date(Date.now() + lifetime * 1000);
+    const token = await this.adapter.issueAccessToken({
+      subjectUserId: target.id,
+      subjectRoleIds: target.roles.map((role) => role.id),
+      actorUserId: actorId,
+      actorSessionId,
+      impersonationId: record.id,
+      expiresInSeconds: lifetime,
+    });
+    await this.sessions.update({ id: record.id, status: 'active' }, { expiresAt });
+    return { impersonationId: record.id, accessToken: token.accessToken, expiresAt: token.expiresAt };
   }
 
   async getCurrent(impersonationId: string, actorId: number, subjectId: number) {
