@@ -1,0 +1,23 @@
+name: Module package validation
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, 'feat/**']
+  workflow_dispatch:
+
+jobs:
+  api-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install module build dependencies
+        run: npm install --ignore-scripts
+      - name: Build NestJS API package
+        run: npm run build:api
+      - name: Verify package exports
+        run: npm run verify:api-package

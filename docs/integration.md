@@ -1,45 +1,37 @@
 # Host integration plan
 
-The module follows the package contract used by `bc-region` and `bc-customer`: one Git repository contains both `api` and `web`, with independently exported package entry points.
+The module follows the package contract used by bc-region and bc-customer: one Git repository contains both api and web, with independently exported package entry points.
 
 ## Backend
 
 The backend package exposes:
-- `@wasnaker/module-impersonate/api`
-- `@wasnaker/module-impersonate/api/manifest`
-- `@wasnaker/module-impersonate/api/definition`
-- `@wasnaker/module-impersonate/api/entities`
-- `@wasnaker/module-impersonate/api/migrations`
-- `@wasnaker/module-impersonate/api/seeds`
+- @wasnaker/module-impersonate/api
+- @wasnaker/module-impersonate/api/manifest
+- @wasnaker/module-impersonate/api/definition
+- @wasnaker/module-impersonate/api/entities
+- @wasnaker/module-impersonate/api/migrations
+- @wasnaker/module-impersonate/api/seeds
 
-The host's generated backend module registry discovers the package and owns the PostgreSQL DataSource and migration lifecycle. The module must not create a second database connection or maintain its own users, roles, or permissions tables.
+The host registry discovers the package, entity, and migration. The host owns the PostgreSQL DataSource and executes migrations through its explicit migration workflow.
 
-The module declares permissions in its manifest and delegates permission decisions to the central authorization core. Proposed permissions:
-- `read:impersonate`: view the impersonation interface and current status.
-- `impersonate:start`: start impersonation.
-- `impersonate:stop`: stop an active impersonation (actor-owned records only).
+The host adapter must resolve active users and their current roles through UsersService, search through the host user service, validate the actor's live SessionService record, check impersonate:start and read:impersonate against the central authorization core, and issue a short-lived access JWT using the host JWT secret/configuration. The signed token identifies the target as id and carries target roles plus actorId, actorSessionId, and impersonationId claims.
 
-## Required host authentication adapter
+## Mandatory host auth integration
 
-The host must expose a typed adapter to the module with operations equivalent to:
-- validate the actor's active session;
-- resolve an active target user and current role IDs;
-- check the actor's `impersonate:start` permission;
-- issue a short-lived access token with subject ID, target role IDs, actor ID, impersonation record ID, and actor session ID;
-- reject refresh for impersonation access tokens;
-- validate the active impersonation record during JWT strategy validation on every request.
+The host JWT strategy must call ImpersonateService.assertActiveToken() for every request carrying an impersonation claim. The refresh strategy must call assertActorSessionCanRefresh() so the administrator's preserved refresh token cannot silently switch the browser back to the admin identity while an impersonation record is active. Both checks fail closed.
 
-The precise interface will be finalized against the host's current auth/session implementation before the API package is enabled. Do not duplicate host auth logic inside this module.
+The host auth provider must preserve the actor's original token pair while using the temporary subject access token. The web package exports ImpersonationBanner; the host must mount it in the authenticated global shell, not only on the module page.
 
 ## Web
 
 The web package exports:
-- `@wasnaker/module-impersonate`
-- `@wasnaker/module-impersonate/manifest`
-- `@wasnaker/module-impersonate/locales/<language>`
+- @wasnaker/module-impersonate
+- @wasnaker/module-impersonate/manifest
+- @wasnaker/module-impersonate/locales/en
+- @wasnaker/module-impersonate/locales/id
 
 The manifest contributes the admin page/menu through the existing module registry. The UI uses the host API client and auth context; it does not access PostgreSQL or maintain a separate authentication system.
 
-## Installation
+## Installation and rollout
 
-After backend and frontend integration are complete and verified, install the package from an immutable commit SHA using the existing module installation scripts. Do not install from a moving branch in production.
+Install from an immutable commit SHA with the host's existing module installation script. Regenerate module registries, run the explicit PostgreSQL migration, then verify permissions and the JWT hooks in an integration environment before exposing the menu. Do not install from a moving branch in production.
