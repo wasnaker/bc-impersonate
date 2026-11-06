@@ -22,5 +22,13 @@
     "start": "Unable to start impersonation",
     "missingSession": "The original administrator session could not be preserved."
   },
+  "banner": {
+    "title": "Impersonation active",
+    "description": "You are viewing the application as {{user}}.",
+    "stop": "Stop impersonating",
+    "unavailable": "Original administrator session is unavailable in this tab",
+    "verifyError": "Unable to verify impersonation status",
+    "renewError": "Unable to renew impersonation"
+  },
   "securityNote": "All actions are performed with the target user's permissions. The administrator remains recorded as the actor in the audit log."
 }
