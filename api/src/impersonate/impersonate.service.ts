@@ -217,6 +217,29 @@ export class ImpersonateService {
     return { impersonationId: record.id, accessToken: token.accessToken, expiresAt: token.expiresAt };
   }
 
+  async endForActorLogout(
+    actorId: number,
+    actorSessionId: number,
+    impersonationId: string,
+  ) {
+    const record = await this.sessions.findOne({
+      where: {
+        id: impersonationId,
+        actorUserId: actorId,
+        actorSessionId,
+        status: 'active',
+      },
+    });
+    if (!record) return { ended: true, alreadyEnded: true };
+    await this.sessions.update({ id: record.id, status: 'active' }, {
+      status: 'revoked',
+      endedAt: new Date(),
+      endedByUserId: actorId,
+      terminationReason: 'actor_logout',
+    });
+    return { ended: true, impersonationId: record.id };
+  }
+
   async getCurrent(impersonationId: string, actorId: number, subjectId: number) {
     const record = await this.sessions.findOne({ where: { id: impersonationId } });
     if (
