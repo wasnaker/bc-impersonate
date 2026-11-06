@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
@@ -10,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import type { RequestWithUser } from '../../utils/request-with-user.type';
 import { StartImpersonationDto } from './dto/start-impersonation.dto';
 import { StopImpersonationDto } from './dto/stop-impersonation.dto';
 import { ImpersonateService } from './impersonate.service';
@@ -22,6 +22,10 @@ interface AuthenticatedPayload {
   actorId?: number;
 }
 
+interface AuthenticatedRequest {
+  user: AuthenticatedPayload;
+}
+
 @ApiTags('Impersonate')
 @ApiBearerAuth()
 @Controller({ path: 'impersonate', version: '1' })
@@ -31,7 +35,7 @@ export class ImpersonateController {
 
   @Get('users')
   users(
-    @Request() request: RequestWithUser<AuthenticatedPayload>,
+    @Request() request: AuthenticatedRequest,
     @Query('q') query = '',
     @Query('page') page = '1',
     @Query('limit') limit = '20',
@@ -47,7 +51,7 @@ export class ImpersonateController {
   @Post('start')
   @HttpCode(HttpStatus.OK)
   start(
-    @Request() request: RequestWithUser<AuthenticatedPayload>,
+    @Request() request: AuthenticatedRequest,
     @Body() dto: StartImpersonationDto,
   ) {
     return this.service.start({
@@ -61,7 +65,7 @@ export class ImpersonateController {
   @Post('stop')
   @HttpCode(HttpStatus.OK)
   stop(
-    @Request() request: RequestWithUser<AuthenticatedPayload>,
+    @Request() request: AuthenticatedRequest,
     @Body() dto: StopImpersonationDto,
   ) {
     return this.service.stop(
@@ -72,15 +76,13 @@ export class ImpersonateController {
   }
 
   @Get('current')
-  current(@Request() request: RequestWithUser<AuthenticatedPayload>) {
+  current(@Request() request: AuthenticatedRequest) {
     const payload = request.user;
     if (!payload.impersonationId || !payload.actorId) {
       return { active: false };
     }
-    return this.service.getCurrent(
-      payload.impersonationId,
-      payload.actorId,
-      payload.id,
-    ).then((session) => ({ active: true, ...session }));
+    return this.service
+      .getCurrent(payload.impersonationId, payload.actorId, payload.id)
+      .then((session) => ({ active: true, ...session }));
   }
 }
