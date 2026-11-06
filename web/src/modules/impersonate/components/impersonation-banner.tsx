@@ -118,7 +118,11 @@ export function ImpersonationBanner() {
         }, delay);
       })
       .catch((cause) => {
-        if (!cancelled) setError(cause instanceof Error ? cause.message : t('banner.verifyError'));
+        if (!cancelled) {
+          setActive(true);
+          setTargetId(claims.id ?? null);
+          setError(cause instanceof Error ? cause.message : t('banner.verifyError'));
+        }
       });
 
     return () => {
