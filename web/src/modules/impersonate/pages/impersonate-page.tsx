@@ -16,14 +16,35 @@ export function ImpersonatePage() {
   const [query, setQuery] = useState('');
   const [reason, setReason] = useState('');
   const [users, setUsers] = useState<ImpersonateUser[]>([]);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const pageSize = 30;
   const [selected, setSelected] = useState<ImpersonateUser | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   async function handleSearch() {
     setLoading(true); setError('');
-    try { const result = await searchUsers(query); setUsers(result.data.filter((item) => String(item.id) !== String(user?.id))); }
+    try {
+      const result = await searchUsers(query, 1);
+      setUsers(result.data.filter((item) => String(item.id) !== String(user?.id)));
+      setPage(1);
+      setTotal(result.total);
+    }
     catch (cause) { setError(cause instanceof Error ? cause.message : t('errors.search')); }
     finally { setLoading(false); }
+  }
+  async function changePage(nextPage: number) {
+    setLoading(true); setError('');
+    try {
+      const result = await searchUsers(query, nextPage);
+      setUsers(result.data.filter((item) => String(item.id) !== String(user?.id)));
+      setPage(nextPage);
+      setTotal(result.total);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : t('errors.search'));
+    } finally {
+      setLoading(false);
+    }
   }
   async function handleStart() {
     if (!selected) return;
@@ -55,6 +76,13 @@ export function ImpersonatePage() {
           </button>
         </li>)}</ul>}
         {users.length === 0 && query && !loading && <p className="mt-4 text-sm text-muted-foreground">{t('select.noResults')}</p>}
+        {total > pageSize && <div className="mt-3 flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">{t('select.page', { page, pages: Math.ceil(total / pageSize), total })}</span>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => changePage(page - 1)} disabled={loading || page <= 1}>{t('select.previous')}</Button>
+            <Button size="sm" variant="outline" onClick={() => changePage(page + 1)} disabled={loading || page >= Math.ceil(total / pageSize)}>{t('select.next')}</Button>
+          </div>
+        </div>}
         {selected && <div className="mt-5 space-y-3 border-t pt-4">
           <div className="text-sm"><span className="text-muted-foreground">{t('select.target')}: </span><strong>{displayName(selected)}</strong></div>
           <label className="block space-y-1 text-sm"><span className="font-medium">{t('select.reason')}</span><Input value={reason} onChange={(event) => setReason(event.target.value)} maxLength={500} placeholder={t('select.reasonPlaceholder')} /></label>
