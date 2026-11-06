@@ -36,8 +36,8 @@ export function ImpersonationBanner() {
     let renewalTimer: ReturnType<typeof setTimeout> | undefined;
 
     const readActorContext = () => {
-      const raw = sessionStorage.getItem('bc-impersonate:actor-tokens');
-      const impersonationId = sessionStorage.getItem('bc-impersonate:active-id') ?? claims?.impersonationId;
+      const raw = localStorage.getItem('bc-impersonate:actor-tokens');
+      const impersonationId = localStorage.getItem('bc-impersonate:active-id') ?? claims?.impersonationId;
       if (!raw || !impersonationId) return null;
       try { return { tokens: JSON.parse(raw) as ActorTokens, impersonationId }; }
       catch { return null; }
@@ -61,8 +61,8 @@ export function ImpersonationBanner() {
         setError(t('banner.stopError'));
         return false;
       }
-      sessionStorage.removeItem('bc-impersonate:actor-tokens');
-      sessionStorage.removeItem('bc-impersonate:active-id');
+      localStorage.removeItem('bc-impersonate:actor-tokens');
+      localStorage.removeItem('bc-impersonate:active-id');
       setTokensInfo(response.status === 401 ? null : actor.tokens);
       setActive(false);
       return true;
@@ -134,8 +134,8 @@ export function ImpersonationBanner() {
   async function stop() {
     setError('');
     try {
-      const raw = sessionStorage.getItem('bc-impersonate:actor-tokens');
-      const impersonationId = sessionStorage.getItem('bc-impersonate:active-id') ?? claims?.impersonationId;
+      const raw = localStorage.getItem('bc-impersonate:actor-tokens');
+      const impersonationId = localStorage.getItem('bc-impersonate:active-id') ?? claims?.impersonationId;
       if (!raw || !impersonationId) throw new Error(t('banner.unavailable'));
       const original = JSON.parse(raw) as ActorTokens;
       const response = await globalThis.fetch(`${API_URL}/v1/impersonate/stop`, {
@@ -146,8 +146,8 @@ export function ImpersonationBanner() {
       if (!response.ok && response.status !== 404 && response.status !== 401) {
         throw new Error(t('banner.stopError'));
       }
-      sessionStorage.removeItem('bc-impersonate:actor-tokens');
-      sessionStorage.removeItem('bc-impersonate:active-id');
+      localStorage.removeItem('bc-impersonate:actor-tokens');
+      localStorage.removeItem('bc-impersonate:active-id');
       setTokensInfo(response.status === 401 ? null : original);
       setActive(false);
     } catch (cause) {
