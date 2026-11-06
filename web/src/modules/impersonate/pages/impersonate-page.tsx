@@ -26,7 +26,7 @@ export function ImpersonatePage() {
     setLoading(true); setError('');
     try {
       const result = await searchUsers(query, 1);
-      setUsers(result.data.filter((item) => String(item.id) !== String(user?.id)));
+      setUsers(result.data);
       setPage(1);
       setTotal(result.total);
     }
@@ -37,7 +37,7 @@ export function ImpersonatePage() {
     setLoading(true); setError('');
     try {
       const result = await searchUsers(query, nextPage);
-      setUsers(result.data.filter((item) => String(item.id) !== String(user?.id)));
+      setUsers(result.data);
       setPage(nextPage);
       setTotal(result.total);
     } catch (cause) {
