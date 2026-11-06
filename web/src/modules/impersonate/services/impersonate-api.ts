@@ -15,10 +15,10 @@ export function useImpersonateApi() {
     const response = await fetch(`${API_URL}/v1/impersonate/start`, { method: 'POST', body: JSON.stringify({ targetUserId, reason }) });
     const body = await response.json(); if (!response.ok) throw new Error(body?.message ?? 'Unable to start impersonation'); return body as ImpersonationStartResponse;
   }, [fetch]);
-  const renew = useCallback(async (impersonationId: string, actorToken: string) => {
+  const renew = useCallback(async (impersonationId: string, actorRefreshToken: string) => {
     const response = await globalThis.fetch(`${API_URL}/v1/impersonate/renew`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${actorToken}` },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${actorRefreshToken}` },
       body: JSON.stringify({ impersonationId }),
     });
     const body = await response.json();
