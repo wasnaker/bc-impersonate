@@ -17,7 +17,6 @@ export const moduleManifest: BackendModuleManifest = {
   permissions: [
     { name: 'read:impersonate', description: 'Allows viewing impersonation controls and status' },
     { name: 'impersonate:start', description: 'Allows starting an impersonation session' },
-    { name: 'impersonate:stop', description: 'Allows ending an impersonation session started by the current administrator' },
   ],
 };
 
