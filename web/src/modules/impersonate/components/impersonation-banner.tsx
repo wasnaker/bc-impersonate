@@ -42,18 +42,19 @@ export function ImpersonationBanner() {
     const restoreActor = async () => {
       const actor = readActorContext();
       if (!actor) return false;
+      let response: Response | undefined;
       try {
-        await globalThis.fetch(`${API_URL}/v1/impersonate/stop`, {
+        response = await globalThis.fetch(`${API_URL}/v1/impersonate/stop`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${actor.tokens.refreshToken}` },
           body: JSON.stringify({ impersonationId: actor.impersonationId }),
         });
       } catch {
-        // Restore the actor locally even if the API is temporarily unreachable.
+        // Restore locally on network failure; the short-lived subject token will expire.
       }
       sessionStorage.removeItem('bc-impersonate:actor-tokens');
       sessionStorage.removeItem('bc-impersonate:active-id');
-      setTokensInfo(actor.tokens);
+      setTokensInfo(response?.status === 401 ? null : actor.tokens);
       setActive(false);
       return true;
     };
@@ -134,7 +135,7 @@ export function ImpersonationBanner() {
       }
       sessionStorage.removeItem('bc-impersonate:actor-tokens');
       sessionStorage.removeItem('bc-impersonate:active-id');
-      setTokensInfo(original);
+      setTokensInfo(response.status === 401 ? null : original);
       setActive(false);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Unable to stop impersonation');
