@@ -46,6 +46,7 @@ export class ImpersonateService {
       query: query.trim(),
       page: normalizedPage,
       limit: normalizedLimit,
+      excludeUserId: actorId,
     });
     return {
       data: result.data.map((user) => this.toSafeUser(user)),
