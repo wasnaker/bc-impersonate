@@ -21,34 +21,29 @@ interface AuthenticatedPayload {
   impersonationId?: string;
   actorId?: number;
 }
-
-interface AuthenticatedRequest {
-  user: AuthenticatedPayload;
-}
+interface AuthenticatedRequest { user: AuthenticatedPayload; }
+interface RefreshPayload { sessionId: number; hash: string; }
+interface RefreshRequest { user: RefreshPayload; }
 
 @ApiTags('Impersonate')
 @ApiBearerAuth()
 @Controller({ path: 'impersonate', version: '1' })
-@UseGuards(AuthGuard('jwt'))
 export class ImpersonateController {
   constructor(private readonly service: ImpersonateService) {}
 
   @Get('users')
+  @UseGuards(AuthGuard('jwt'))
   users(
     @Request() request: AuthenticatedRequest,
     @Query('q') query = '',
     @Query('page') page = '1',
     @Query('limit') limit = '20',
   ) {
-    return this.service.searchUsers(
-      request.user.id,
-      query,
-      Number(page),
-      Number(limit),
-    );
+    return this.service.searchUsers(request.user.id, query, Number(page), Number(limit));
   }
 
   @Post('start')
+  @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   start(
     @Request() request: AuthenticatedRequest,
@@ -62,38 +57,41 @@ export class ImpersonateController {
     });
   }
 
+  // Refresh credentials are accepted only for these two lifecycle operations.
+  // The ordinary /auth/refresh endpoint rejects them while the record is active.
   @Post('stop')
+  @UseGuards(AuthGuard('jwt-refresh'))
   @HttpCode(HttpStatus.OK)
   stop(
-    @Request() request: AuthenticatedRequest,
+    @Request() request: RefreshRequest,
     @Body() dto: StopImpersonationDto,
   ) {
-    return this.service.stop(
-      request.user.id,
+    return this.service.stopWithRefreshToken(
       request.user.sessionId,
+      request.user.hash,
       dto.impersonationId,
     );
   }
 
   @Post('renew')
+  @UseGuards(AuthGuard('jwt-refresh'))
   @HttpCode(HttpStatus.OK)
   renew(
-    @Request() request: AuthenticatedRequest,
+    @Request() request: RefreshRequest,
     @Body() dto: StopImpersonationDto,
   ) {
-    return this.service.renew(
-      request.user.id,
+    return this.service.renewWithRefreshToken(
       request.user.sessionId,
+      request.user.hash,
       dto.impersonationId,
     );
   }
 
   @Get('current')
+  @UseGuards(AuthGuard('jwt'))
   current(@Request() request: AuthenticatedRequest) {
     const payload = request.user;
-    if (!payload.impersonationId || !payload.actorId) {
-      return { active: false };
-    }
+    if (!payload.impersonationId || !payload.actorId) return { active: false };
     return this.service
       .getCurrent(payload.impersonationId, payload.actorId, payload.id)
       .then((session) => ({ active: true, ...session }));
