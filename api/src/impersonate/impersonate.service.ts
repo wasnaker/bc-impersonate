@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -70,6 +71,20 @@ export class ImpersonateService {
       throw new UnauthorizedException('The administrator session is no longer active');
     }
 
+    const activeSession = await this.sessions.findOne({
+      where: { actorSessionId: input.actorSessionId, status: 'active' },
+    });
+    if (activeSession && activeSession.expiresAt.getTime() > Date.now()) {
+      throw new ConflictException('This administrator session is already impersonating another user');
+    }
+    if (activeSession) {
+      await this.sessions.update({ id: activeSession.id, status: 'active' }, {
+        status: 'expired',
+        endedAt: new Date(),
+        terminationReason: 'expired',
+      });
+    }
+
     const target = await this.adapter.findUserById(input.targetUserId);
     if (!target || !target.active) throw new NotFoundException('Target user is unavailable');
     if (!target.roles?.length) throw new BadRequestException('Target user has no assigned roles');
@@ -93,7 +108,16 @@ export class ImpersonateService {
       terminationReason: null,
     });
 
-    await this.sessions.save(record);
+    try {
+      await this.sessions.save(record);
+    } catch (error) {
+      // The partial unique index is the final guard against concurrent starts.
+      if ((error as { code?: string })?.code === '23505') {
+        throw new ConflictException('This administrator session is already impersonating another user');
+      }
+      throw error;
+    }
+
     try {
       const token = await this.adapter.issueAccessToken({
         subjectUserId: target.id,
