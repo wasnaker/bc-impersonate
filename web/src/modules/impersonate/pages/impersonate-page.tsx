@@ -32,8 +32,8 @@ export function ImpersonatePage() {
       const actorTokens = getTokensInfo();
       if (!actorTokens?.token || !actorTokens.refreshToken) throw new Error(t('errors.missingSession'));
       const result = await start(selected.id, reason);
-      sessionStorage.setItem('bc-impersonate:actor-tokens', JSON.stringify(actorTokens));
-      sessionStorage.setItem('bc-impersonate:active-id', result.impersonationId);
+      localStorage.setItem('bc-impersonate:actor-tokens', JSON.stringify(actorTokens));
+      localStorage.setItem('bc-impersonate:active-id', result.impersonationId);
       setTokensInfo({ token: result.accessToken, refreshToken: null, tokenExpires: new Date(result.expiresAt).getTime() });
     } catch (cause) { setError(cause instanceof Error ? cause.message : t('errors.start')); }
     finally { setLoading(false); }
