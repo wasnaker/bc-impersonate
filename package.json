@@ -5,17 +5,46 @@
   "license": "GPL-2.0-only",
   "type": "module",
   "sideEffects": false,
-  "files": ["api/package.json", "api/dist", "web/src/modules/impersonate", "web/src/services/i18n/locales"],
+  "files": [
+    "api/package.json",
+    "api/dist",
+    "web/src/modules/impersonate",
+    "web/src/services/i18n/locales"
+  ],
   "exports": {
     ".": "./web/src/modules/impersonate/index.ts",
     "./web": "./web/src/modules/impersonate/index.ts",
     "./manifest": "./web/src/modules/impersonate/module.manifest.ts",
-    "./api": { "types": "./api/dist/index.d.ts", "require": "./api/dist/index.js", "default": "./api/dist/index.js" },
-    "./api/manifest": { "types": "./api/dist/impersonate/impersonate.manifest.d.ts", "require": "./api/dist/impersonate/impersonate.manifest.js", "default": "./api/dist/impersonate/impersonate.manifest.js" },
-    "./api/definition": { "types": "./api/dist/impersonate/impersonate.definition.d.ts", "require": "./api/dist/impersonate/impersonate.definition.js", "default": "./api/dist/impersonate/impersonate.definition.js" },
-    "./api/entities": { "types": "./api/dist/impersonate/impersonate.entities.d.ts", "require": "./api/dist/impersonate/impersonate.entities.js", "default": "./api/dist/impersonate/impersonate.entities.js" },
-    "./api/migrations": { "types": "./api/dist/impersonate/database/migrations/index.d.ts", "require": "./api/dist/impersonate/database/migrations/index.js", "default": "./api/dist/impersonate/database/migrations/index.js" },
-    "./api/seeds": { "types": "./api/dist/impersonate/impersonate.seeds.d.ts", "require": "./api/dist/impersonate/impersonate.seeds.js", "default": "./api/dist/impersonate/impersonate.seeds.js" },
+    "./api": {
+      "types": "./api/dist/index.d.ts",
+      "require": "./api/dist/index.js",
+      "default": "./api/dist/index.js"
+    },
+    "./api/manifest": {
+      "types": "./api/dist/impersonate/impersonate.manifest.d.ts",
+      "require": "./api/dist/impersonate/impersonate.manifest.js",
+      "default": "./api/dist/impersonate/impersonate.manifest.js"
+    },
+    "./api/definition": {
+      "types": "./api/dist/impersonate/impersonate.definition.d.ts",
+      "require": "./api/dist/impersonate/impersonate.definition.js",
+      "default": "./api/dist/impersonate/impersonate.definition.js"
+    },
+    "./api/entities": {
+      "types": "./api/dist/impersonate/impersonate.entities.d.ts",
+      "require": "./api/dist/impersonate/impersonate.entities.js",
+      "default": "./api/dist/impersonate/impersonate.entities.js"
+    },
+    "./api/migrations": {
+      "types": "./api/dist/impersonate/database/migrations/index.d.ts",
+      "require": "./api/dist/impersonate/database/migrations/index.js",
+      "default": "./api/dist/impersonate/database/migrations/index.js"
+    },
+    "./api/seeds": {
+      "types": "./api/dist/impersonate/impersonate.seeds.d.ts",
+      "require": "./api/dist/impersonate/impersonate.seeds.js",
+      "default": "./api/dist/impersonate/impersonate.seeds.js"
+    },
     "./locales/en": "./web/src/services/i18n/locales/en/module-impersonate.json",
     "./locales/id": "./web/src/services/i18n/locales/id/module-impersonate.json"
   },
@@ -35,7 +64,11 @@
     "passport": "^0.7.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.0",
-    "typeorm": "^0.3.0"
+    "typeorm": "^0.3.0",
+    "next": "^16.2.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "lucide-react": "^1.18.0"
   },
   "devDependencies": {
     "@nestjs/common": "11.1.18",
@@ -53,16 +86,50 @@
     "typescript": "5.9.3"
   },
   "peerDependenciesMeta": {
-    "@nestjs/common": {"optional": true},
-    "@nestjs/core": {"optional": true},
-    "@nestjs/passport": {"optional": true},
-    "@nestjs/swagger": {"optional": true},
-    "@nestjs/typeorm": {"optional": true},
-    "class-transformer": {"optional": true},
-    "class-validator": {"optional": true},
-    "passport": {"optional": true},
-    "reflect-metadata": {"optional": true},
-    "rxjs": {"optional": true},
-    "typeorm": {"optional": true}
+    "@nestjs/common": {
+      "optional": true
+    },
+    "@nestjs/core": {
+      "optional": true
+    },
+    "@nestjs/passport": {
+      "optional": true
+    },
+    "@nestjs/swagger": {
+      "optional": true
+    },
+    "@nestjs/typeorm": {
+      "optional": true
+    },
+    "class-transformer": {
+      "optional": true
+    },
+    "class-validator": {
+      "optional": true
+    },
+    "passport": {
+      "optional": true
+    },
+    "reflect-metadata": {
+      "optional": true
+    },
+    "rxjs": {
+      "optional": true
+    },
+    "typeorm": {
+      "optional": true
+    },
+    "next": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "lucide-react": {
+      "optional": true
+    }
   }
 }
