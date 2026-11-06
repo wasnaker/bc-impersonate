@@ -23,6 +23,7 @@ export class CreateImpersonationSession1793928000000 implements MigrationInterfa
     `);
     await queryRunner.query('CREATE INDEX "IDX_impersonation_actor_status" ON "impersonation_session" ("actorUserId", "status")');
     await queryRunner.query('CREATE INDEX "IDX_impersonation_expires_status" ON "impersonation_session" ("expiresAt", "status")');
+    await queryRunner.query('CREATE UNIQUE INDEX "UQ_impersonation_actor_session_active" ON "impersonation_session" ("actorSessionId") WHERE "status" = \'active\'');
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
