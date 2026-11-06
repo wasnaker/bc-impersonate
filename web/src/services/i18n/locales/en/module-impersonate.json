@@ -28,7 +28,8 @@
     "stop": "Stop impersonating",
     "unavailable": "Original administrator session is unavailable in this tab",
     "verifyError": "Unable to verify impersonation status",
-    "renewError": "Unable to renew impersonation"
+    "renewError": "Unable to renew impersonation",
+    "stopError": "Unable to stop impersonation. Please try again."
   },
   "securityNote": "All actions are performed with the target user's permissions. The administrator remains recorded as the actor in the audit log."
 }
