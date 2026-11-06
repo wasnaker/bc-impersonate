@@ -45,7 +45,7 @@ export function ImpersonationBanner() {
       try {
         await globalThis.fetch(`${API_URL}/v1/impersonate/stop`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${actor.tokens.token}` },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${actor.tokens.refreshToken}` },
           body: JSON.stringify({ impersonationId: actor.impersonationId }),
         });
       } catch {
@@ -86,7 +86,7 @@ export function ImpersonationBanner() {
           try {
             const response = await globalThis.fetch(`${API_URL}/v1/impersonate/renew`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${actor.tokens.token}` },
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${actor.tokens.refreshToken}` },
               body: JSON.stringify({ impersonationId: actor.impersonationId }),
             });
             if (response.status === 401) {
@@ -126,7 +126,7 @@ export function ImpersonationBanner() {
       const original = JSON.parse(raw) as ActorTokens;
       const response = await globalThis.fetch(`${API_URL}/v1/impersonate/stop`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${original.token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${original.refreshToken}` },
         body: JSON.stringify({ impersonationId }),
       });
       if (!response.ok && response.status !== 404 && response.status !== 401) {
