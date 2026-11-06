@@ -2,7 +2,6 @@
 import { useState, useContext } from 'react';
 import { AuthTokensContext } from '@/services/auth/auth-context';
 import { getTokensInfo } from '@/services/auth/auth-tokens-info';
-import useAuth from '@/services/auth/use-auth';
 import { useTranslation } from '@/services/i18n/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +9,6 @@ import { useImpersonateApi, type ImpersonateUser } from '../services/impersonate
 
 export function ImpersonatePage() {
   const { t } = useTranslation('module-impersonate');
-  const { user } = useAuth();
   const { setTokensInfo } = useContext(AuthTokensContext);
   const { searchUsers, start } = useImpersonateApi();
   const [query, setQuery] = useState('');
