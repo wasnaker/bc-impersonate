@@ -1,0 +1,26 @@
+{
+  "title": "Impersonate user",
+  "menu": "Impersonate user",
+  "subtitle": "Temporarily access the application as another user for support and testing.",
+  "select": {
+    "title": "Select a user",
+    "description": "Choose an active account. Your administrator session will be preserved and restored when you stop impersonating.",
+    "searchPlaceholder": "Search by name or email",
+    "noEmail": "No email",
+    "selected": "Selected",
+    "target": "Target user",
+    "reason": "Reason (optional)",
+    "reasonPlaceholder": "Support or testing purpose",
+    "noResults": "No matching users found."
+  },
+  "actions": {
+    "search": "Search",
+    "start": "Start impersonation"
+  },
+  "errors": {
+    "search": "Unable to search users",
+    "start": "Unable to start impersonation",
+    "missingSession": "The original administrator session could not be preserved."
+  },
+  "securityNote": "All actions are performed with the target user's permissions. The administrator remains recorded as the actor in the audit log."
+}

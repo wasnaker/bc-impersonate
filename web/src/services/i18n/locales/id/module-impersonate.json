@@ -1,0 +1,26 @@
+{
+  "title": "Masuk sebagai pengguna",
+  "menu": "Masuk sebagai pengguna",
+  "subtitle": "Akses aplikasi sementara sebagai pengguna lain untuk dukungan dan pengujian.",
+  "select": {
+    "title": "Pilih pengguna",
+    "description": "Pilih akun yang aktif. Sesi administrator akan disimpan dan dipulihkan setelah impersonasi dihentikan.",
+    "searchPlaceholder": "Cari berdasarkan nama atau email",
+    "noEmail": "Tanpa email",
+    "selected": "Dipilih",
+    "target": "Pengguna tujuan",
+    "reason": "Alasan (opsional)",
+    "reasonPlaceholder": "Tujuan dukungan atau pengujian",
+    "noResults": "Pengguna tidak ditemukan."
+  },
+  "actions": {
+    "search": "Cari",
+    "start": "Mulai impersonasi"
+  },
+  "errors": {
+    "search": "Tidak dapat mencari pengguna",
+    "start": "Tidak dapat memulai impersonasi",
+    "missingSession": "Sesi administrator tidak dapat disimpan."
+  },
+  "securityNote": "Seluruh tindakan menggunakan hak akses pengguna tujuan. Administrator tetap tercatat sebagai pelaku pada audit log."
+}
