@@ -11,7 +11,10 @@
     "target": "Target user",
     "reason": "Reason (optional)",
     "reasonPlaceholder": "Support or testing purpose",
-    "noResults": "No matching users found."
+    "noResults": "No matching users found.",
+    "page": "Page {{page}} of {{pages}} ({{total}} users)",
+    "previous": "Previous",
+    "next": "Next"
   },
   "actions": {
     "search": "Search",
