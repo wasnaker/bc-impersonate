@@ -179,6 +179,23 @@ export class ImpersonateService {
     };
   }
 
+  /** Host refresh strategy must reject the actor refresh token while impersonation is active. */
+  async assertActorSessionCanRefresh(actorSessionId: number): Promise<void> {
+    const record = await this.sessions.findOne({
+      where: { actorSessionId, status: 'active' },
+    });
+    if (record && record.expiresAt.getTime() > Date.now()) {
+      throw new UnauthorizedException('Stop impersonation before refreshing the administrator session');
+    }
+    if (record) {
+      await this.sessions.update({ id: record.id, status: 'active' }, {
+        status: 'expired',
+        endedAt: new Date(),
+        terminationReason: 'expired',
+      });
+    }
+  }
+
   /** Host JWT strategy must call this for every request carrying an impersonation claim. */
   async assertActiveToken(input: {
     impersonationId: string;
