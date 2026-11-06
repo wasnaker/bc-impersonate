@@ -21,7 +21,7 @@ export function ImpersonatePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   async function handleSearch() {
-    setLoading(true); setError('');
+    setLoading(true); setError(''); setSelected(null);
     try {
       const result = await searchUsers(query, 1);
       setUsers(result.data);
