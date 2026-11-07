@@ -28,6 +28,9 @@
   "banner": {
     "title": "Impersonasi aktif",
     "description": "Anda sedang mengakses aplikasi sebagai {{user}}.",
+    "branch": "Cabang",
+    "customer": "Customer",
+    "roles": "Role",
     "stop": "Hentikan impersonasi",
     "unavailable": "Sesi administrator asli tidak tersedia di tab ini",
     "verifyError": "Tidak dapat memverifikasi status impersonasi",

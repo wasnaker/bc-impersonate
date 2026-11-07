@@ -10,6 +10,7 @@ import { useTranslation } from '@/services/i18n/client';
 
 interface JwtClaims { impersonationId?: string; actorId?: number; id?: number; }
 interface ActorTokens { token: string; refreshToken: string; tokenExpires: number; }
+interface ImpersonatedScope { branch: string | null; customer: string | null; }
 
 function readClaims(token: string | null | undefined): JwtClaims | null {
   if (!token) return null;
@@ -27,6 +28,7 @@ export function ImpersonationBanner() {
   const { t } = useTranslation('module-impersonate');
   const [active, setActive] = useState(false);
   const [targetId, setTargetId] = useState<number | null>(null);
+  const [scope, setScope] = useState<ImpersonatedScope | null>(null);
   const [error, setError] = useState('');
   const token = getTokensInfo()?.token;
   const claims = readClaims(token);
@@ -131,6 +133,42 @@ export function ImpersonationBanner() {
     };
   }, [fetchWithAuth, claims?.impersonationId, claims?.actorId, setTokensInfo, t]);
 
+  // Branch & customer of the impersonated account. The endpoint derives the
+  // scope from the authenticated user's own staff record, so it cannot be
+  // used to read another customer's data. Missing staff link (404) or any
+  // other failure simply leaves the fields empty in the banner.
+  useEffect(() => {
+    if (!active) {
+      setScope(null);
+      return;
+    }
+    let cancelled = false;
+    fetchWithAuth(`${API_URL}/v1/customer/me/branch`, { method: 'GET' })
+      .then(async (response) => {
+        if (response.status === 404) {
+          return { branch: null, customer: null } satisfies ImpersonatedScope;
+        }
+        if (!response.ok) return null;
+        const data = (await response.json()) as {
+          name?: string | null;
+          customerName?: string | null;
+        };
+        return {
+          branch: data?.name ?? null,
+          customer: data?.customerName ?? null,
+        } satisfies ImpersonatedScope;
+      })
+      .then((next) => {
+        if (!cancelled) setScope(next);
+      })
+      .catch(() => {
+        if (!cancelled) setScope(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [active, fetchWithAuth]);
+
   async function stop() {
     setError('');
     try {
@@ -157,11 +195,30 @@ export function ImpersonationBanner() {
 
   if (!active) return error ? <div role="alert" className="border-b bg-destructive/10 px-4 py-2 text-sm text-destructive">{error}</div> : null;
   const targetName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.email || `#${targetId}`;
+  const roleNames = (user?.roles ?? [])
+    .map((role) => role.name)
+    .filter((name): name is string => Boolean(name));
   return (
-    <div role="status" className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-400 bg-amber-50 px-4 py-2 text-sm text-amber-950 dark:bg-amber-950 dark:text-amber-100">
-      <span><strong>{t('banner.title')}.</strong> {t('banner.description', { user: targetName })}</span>
+    <div role="status" className="flex flex-wrap items-start justify-between gap-3 border-b border-amber-400 bg-amber-50 px-4 py-2 text-sm text-amber-950 dark:bg-amber-950 dark:text-amber-100">
+      <div className="flex min-w-0 flex-col gap-1">
+        <span><strong>{t('banner.title')}.</strong> {t('banner.description', { user: targetName })}</span>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+          <span><span className="font-semibold">{t('banner.branch')}:</span> {scope?.branch ?? '—'}</span>
+          <span><span className="font-semibold">{t('banner.customer')}:</span> {scope?.customer ?? '—'}</span>
+          <span className="flex flex-wrap items-center gap-1">
+            <span className="font-semibold">{t('banner.roles')}:</span>
+            {roleNames.length > 0
+              ? roleNames.map((name) => (
+                  <span key={name} className="rounded-full border border-amber-400/70 bg-amber-100/70 px-1.5 py-0.5 font-medium dark:bg-amber-900/40">
+                    {name}
+                  </span>
+                ))
+              : '—'}
+          </span>
+        </div>
+      </div>
       <div className="flex items-center gap-3">
-        {error && <span role="alert">{error}</span>}
+        {error && <span role="alert" className="text-xs">{error}</span>}
         <Button size="sm" variant="outline" onClick={stop}>{t('banner.stop')}</Button>
       </div>
     </div>

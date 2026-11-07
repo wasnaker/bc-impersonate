@@ -28,6 +28,9 @@
   "banner": {
     "title": "Impersonation active",
     "description": "You are viewing the application as {{user}}.",
+    "branch": "Branch",
+    "customer": "Customer",
+    "roles": "Roles",
     "stop": "Stop impersonating",
     "unavailable": "Original administrator session is unavailable in this tab",
     "verifyError": "Unable to verify impersonation status",
