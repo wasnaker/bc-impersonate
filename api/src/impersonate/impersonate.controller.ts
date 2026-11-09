@@ -14,6 +14,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { StartImpersonationDto } from './dto/start-impersonation.dto';
 import { StopImpersonationDto } from './dto/stop-impersonation.dto';
 import { ImpersonateService } from './impersonate.service';
+import { ImpersonateAccessGuard } from './impersonate-access.guard';
 
 interface AuthenticatedPayload {
   id: number;
@@ -27,6 +28,7 @@ interface RefreshRequest { user: RefreshPayload; }
 
 @ApiTags('Impersonate')
 @ApiBearerAuth()
+@UseGuards(ImpersonateAccessGuard)
 @Controller({ path: 'impersonate', version: '1' })
 export class ImpersonateController {
   constructor(private readonly service: ImpersonateService) {}
