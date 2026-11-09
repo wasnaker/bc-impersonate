@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ImpersonationSessionEntity = exports.ImpersonateService = exports.IMPERSONATE_MODULE_OPTIONS = exports.ImpersonateModule = void 0;
+var impersonate_module_1 = require("./impersonate/impersonate.module");
+Object.defineProperty(exports, "ImpersonateModule", { enumerable: true, get: function () { return impersonate_module_1.ImpersonateModule; } });
+var impersonate_options_1 = require("./impersonate/impersonate.options");
+Object.defineProperty(exports, "IMPERSONATE_MODULE_OPTIONS", { enumerable: true, get: function () { return impersonate_options_1.IMPERSONATE_MODULE_OPTIONS; } });
+var impersonate_service_1 = require("./impersonate/impersonate.service");
+Object.defineProperty(exports, "ImpersonateService", { enumerable: true, get: function () { return impersonate_service_1.ImpersonateService; } });
+var impersonation_session_entity_1 = require("./impersonate/infrastructure/persistence/relational/entities/impersonation-session.entity");
+Object.defineProperty(exports, "ImpersonationSessionEntity", { enumerable: true, get: function () { return impersonation_session_entity_1.ImpersonationSessionEntity; } });
