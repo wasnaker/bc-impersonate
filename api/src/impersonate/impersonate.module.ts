@@ -13,6 +13,7 @@ export const IMPERSONATE_SERVICE = Symbol.for('@wasnaker/module-impersonate/serv
   controllers: [ImpersonateController],
   providers: [
     ImpersonateService,
+    ImpersonateAccessGuard,
     { provide: IMPERSONATE_SERVICE, useExisting: ImpersonateService },
   ],
   exports: [ImpersonateService, IMPERSONATE_SERVICE],
