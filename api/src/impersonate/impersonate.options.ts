@@ -19,6 +19,8 @@ export interface ImpersonationTokenInput {
 }
 
 export interface ImpersonateModuleOptions {
+  /** Host lifecycle gate; impersonation routes are unavailable while inactive. */
+  isModuleActive?: () => boolean | Promise<boolean>;
   /** Resolve a target through the host user service, including its current roles/status. */
   findUserById(userId: number | string): Promise<ImpersonationUser | null>;
   /** Search users through the host user service; never query the host user table directly. */
