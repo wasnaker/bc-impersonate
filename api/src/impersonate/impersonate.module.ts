@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ImpersonationSessionEntity } from './infrastructure/persistence/relational/entities/impersonation-session.entity';
 import { ImpersonateController } from './impersonate.controller';
 import { ImpersonateService } from './impersonate.service';
+import { ImpersonateAccessGuard } from './impersonate-access.guard';
 import { IMPERSONATE_MODULE_OPTIONS, ImpersonateModuleAsyncOptions } from './impersonate.options';
 
 export const IMPERSONATE_SERVICE = Symbol.for('@wasnaker/module-impersonate/service');
