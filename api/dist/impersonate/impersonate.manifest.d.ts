@@ -7,6 +7,11 @@ export interface BackendModuleManifest {
     version: string;
     capabilities: readonly ('api' | 'web')[];
     permissions: readonly ModulePermissionDefinition[];
+    requiresServices?: readonly {
+        providerModuleId: string;
+        contractId: string;
+        version: string;
+    }[];
 }
 export declare const moduleManifest: BackendModuleManifest;
 export declare const impersonateModuleManifest: BackendModuleManifest;

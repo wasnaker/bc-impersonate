@@ -3,3 +3,5 @@ export type { ImpersonateModuleOptions, ImpersonateModuleAsyncOptions, Impersona
 export { IMPERSONATE_MODULE_OPTIONS } from './impersonate/impersonate.options';
 export { ImpersonateService } from './impersonate/impersonate.service';
 export { ImpersonationSessionEntity } from './impersonate/infrastructure/persistence/relational/entities/impersonation-session.entity';
+export { moduleManifest, impersonateModuleManifest } from './impersonate/impersonate.manifest';
+export { moduleDefinition } from './impersonate/impersonate.definition';
